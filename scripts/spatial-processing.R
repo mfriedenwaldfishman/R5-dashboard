@@ -14,7 +14,7 @@ r5_au_bounds <- all_usfs_admin_units %>%
   filter(region == "05")
 
 # name of forests
-forestname <- as.vector(unique(r5_au_bounds$forestname))
+forestname_R5 <- as.vector(unique(r5_au_bounds$forestname))
 
 # quick map ----
 mapview(r5_au_bounds)
