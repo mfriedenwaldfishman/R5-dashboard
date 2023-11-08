@@ -134,7 +134,7 @@ usfs_ridb2018 <- raw_ridb2018 %>%
   
   
 # 2019-2021 clean and subset ridb ----
-usfs_ridb <- raw_ridb2019 %>% 
+usfs_ridb <- raw_ridb2021 %>% 
   # match colnames
   janitor::clean_names(sep_out = "") %>% 
   # cols of interest
@@ -193,21 +193,35 @@ usfs_ridb <- raw_ridb2019 %>%
     park = str_replace(string = park,
                        pattern = paste(c("/", " / "), collapse = "|"),
                        replacement = " "),
+    # match park with 2018 data
     park = case_when(
       # Stanislaus NF
       park == "Big Meadow Stanislaus Natl Fs" ~ "Big Meadow",
       park == "Lake Alpine - Lodgepole Group" ~ "Lodgepole Group",
+      # fill in missing data based on lat/long
+      facilitylatitude == 38.48110 & facilitylongitude == -120.0170 ~ "Silvertip Campground",
+      facilitylatitude == 38.48150 & facilitylongitude == -119.9890 ~ "Pine Marten Campground",
+      facilitylatitude == 38.48075 & facilitylongitude == -119.9886 ~ "Pine Marten Campground",
+      facilitylatitude == 38.48020 & facilitylongitude == -119.9850 ~ "Silver Valley Campground",
+      facilitylatitude == 38.47733 & facilitylongitude == -120.0080 ~ "Lake Alpine West Shore Campground",
+      facilitylatitude == 38.47731 & facilitylongitude == -120.0242 ~ "Lodgepole Overflow Campground",
       # Tahoe NF
       park == "Tunnel Mills Ii" ~ "Tunnel Mills Group",
       TRUE ~ park
     )
   )
 
-
 # test ----
-park2018_test <- usfs_ridb2018 %>% 
-  filter(forestname == "Sierra National Forest")
+park2021_test <- usfs_ridb %>% 
+  filter(forestname == "Stanislaus National Forest") %>% 
+  group_by(park,
+           facilitylongitude,
+           facilitylatitude) %>% 
+  summarize(n = n()) %>% 
+  mutate(
+    park = case_when(
+      facilitylatitude == 38.47731 & facilitylongitude == -120.0242 ~ "Lodgepole Overflow Campground",
+      TRUE ~ park
+    )
+  )
 
-park2019_test <- usfs_ridb %>% 
-  filter(forestname == "Stanislaus National Forest")
-  
