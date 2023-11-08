@@ -80,12 +80,61 @@ usfs_ridb2018 <- raw_ridb2018 %>%
   filter(forestname %in% forestname_R5) %>% 
   # clean park #
   mutate(
-    park = str_to_title(park) # 367 tot
+    park = str_to_title(park), # 367 tot
+    # string errors
+    park = str_remove(string = park,
+                      pattern = paste(c("\\(.*", " \\(.*",
+                                        "---.*", " ---.*",
+                                        ",.*"), collapse = "|")),
+    park = str_replace(string = park,
+                       pattern = "@",
+                       replacement = "At"),
+    park = str_replace(string = park,
+                       pattern = "Cg",
+                       replacement = "Campground"),
+    park = str_replace(string = park,
+                       pattern = paste(c("/", " / "), collapse = "|"),
+                       replacement = " "),
+    # match park with 2019+ data
+    park = case_when(
+      # Angeles NF
+      park == "Pyramid Lake / Los Alamos Campground" ~ "Pyramid Lake - Los Alamos Campground",
+      park == "Table Mountain - Angeles Nf" ~ "Table Mountain",
+      # Eldorado NF
+      park == "Bear Group Campground" ~ "Bear River Group Campground",
+      park == "Silver Lake East" ~ "Silver Lake East- Eldorado",
+      park == "South Fork Group" ~ "South Fork Group (Ca)",
+      # Inyo NF
+      park == "Silver Lake Campground" ~ "Silver Lake Campground June Lake",
+      park == "Table Mountain Inyo" ~ "Table Mountain",
+      # Los Padres NF
+      park == "Arroyo Seco Campground" ~ "Arroyo Seco",
+      park == "Los Prietos Campground" ~ "Los Prietos",
+      # Plumas NF
+      park == "Cottonwood\nThousand Trails Management Services, Inc" ~ "Cottonwood",
+      # San Bernardino NF
+      park == "Black Mountain Group" ~ "Black Mountain",
+      # Sequoia NF
+      park == "Camp 3 Campground" ~ "Camp Three Campground",
+      park == "French Gulch Group" ~ "French Gulch",
+      # Six Rivers NF
+      park == "Boise Creek Campground" ~ "Boise Creek",
+      park == "Oak Bottom" ~ "Oak Bottom Campground",
+      # Stanislaus NF
+      park == "Lodgepole/Bear Valley" ~ "Lodgepole Group",
+      park == "Pioneer Trails" ~ "Pioneer Trail",
+      # Tahoe NF
+      park == "Boca Rest" ~ "Boca Rest Campground",
+      park == "Calpine Lookout Cabin" ~ "Calpine Lookout",
+      park == "Sierra Campground" ~ "Sierra",
+      park == "Tunnel Mills Il" ~ "Tunnel Mills Group",
+      TRUE ~ park
+    )
   )
   
   
 # 2019-2021 clean and subset ridb ----
-usfs_ridb <- raw_ridb2021 %>% 
+usfs_ridb <- raw_ridb2019 %>% 
   # match colnames
   janitor::clean_names(sep_out = "") %>% 
   # cols of interest
@@ -127,6 +176,38 @@ usfs_ridb <- raw_ridb2021 %>%
   filter(forestname %in% forestname_R5) %>% 
   # clean park #
   mutate(
-    park = str_to_title(park) # 381 tot (2019) 385 tot (2020) 402 tot (2021)
+    park = str_to_title(park), # 381 tot (2019) 385 tot (2020) 402 tot (2021)
+    # string errors
+    park = str_remove(string = park,
+                      pattern = paste(c("\\(.*", " \\(.*"), 
+                                      collapse = "|")),
+    park = str_replace(string = park,
+                       pattern = "Cg",
+                       replacement = "Campground"),
+    park = str_replace(string = park,
+                       pattern = "@",
+                       replacement = "At"),
+    park = str_replace(string = park,
+                       pattern = "&",
+                       replacement = "And"),
+    park = str_replace(string = park,
+                       pattern = paste(c("/", " / "), collapse = "|"),
+                       replacement = " "),
+    park = case_when(
+      # Stanislaus NF
+      park == "Big Meadow Stanislaus Natl Fs" ~ "Big Meadow",
+      park == "Lake Alpine - Lodgepole Group" ~ "Lodgepole Group",
+      # Tahoe NF
+      park == "Tunnel Mills Ii" ~ "Tunnel Mills Group",
+      TRUE ~ park
+    )
   )
+
+
+# test ----
+park2018_test <- usfs_ridb2018 %>% 
+  filter(forestname == "Sierra National Forest")
+
+park2019_test <- usfs_ridb %>% 
+  filter(forestname == "Stanislaus National Forest")
   
