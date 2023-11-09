@@ -129,7 +129,9 @@ usfs_ridb2018 <- raw_ridb2018 %>%
       park == "Sierra Campground" ~ "Sierra",
       park == "Tunnel Mills Il" ~ "Tunnel Mills Group",
       TRUE ~ park
-    )
+    ),
+    # convert sitetype to title case
+    sitetype = str_to_title(sitetype)
   )
   
   
@@ -218,5 +220,40 @@ usfs_ridb <- raw_ridb2021 %>%
     # convert back to numeric
     facilitylongitude = as.numeric(facilitylongitude),
     facilitylatitude = as.numeric(facilitylatitude),
+    # convert sitetype to title case
+    sitetype = str_to_title(sitetype)#,
+    # aggregated sitetype
+    # siteype = case_when(
+    #   site_type %in% c("walk to",
+    #                    "hike to",
+    #                    "group hike to",
+    #                    "group walk to") ~ "remote",
+    #   site_type %in% c("cabin nonelectric",
+    #                    "cabin electric",
+    #                    "yurt",
+    #                    "shelter nonelectric") ~ "shelter",
+    #   site_type %in% c("boat in",
+    #                    "anchorage") ~ "water",
+    #   site_type %in% c("group equestrian",
+    #                    "equestrian nonelectric") ~ "equestrian",
+    #   site_type %in% c("rv nonelectric",
+    #                    "rv electric",
+    #                    "group rv area nonelectric") ~ "rv only",
+    #   site_type %in% c("group standard nonelectric",
+    #                    "standard nonelectric",
+    #                    "standard electric",
+    #                    "group standard area nonelectric",
+    #                    "group standard electric") ~ "rv or tent",
+    #   site_type %in% c("tent only nonelectric",
+    #                    "group tent only area nonelectric",
+    #                    "tent only electric") ~ "tent only"
+    # )
   )
 
+
+# test sitetype
+
+site_test <- usfs_ridb %>% 
+  filter(sitetype == "Management") %>% 
+  group_by(forestname, park, usetype) %>% 
+  summarize(n = n())
