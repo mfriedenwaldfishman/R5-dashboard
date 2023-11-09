@@ -1,0 +1,77 @@
+---
+title: "R5 Dashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    theme:
+      primary: "#217a38"
+      secondary: "#24583b"
+      success: "#96d4ac"
+      info: "#2f5b75"
+      warning: "#ffc734"
+      danger: "#892f31"
+      base_font:
+        google: Nunito
+      code_font:
+        google: Fira Code
+      heading_font:
+        google: Nunito
+    orientation: rows
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+# bslib::bs_themer()
+# Install thematic and un-comment for themed static plots (i.e., ggplot2)
+# thematic::thematic_rmd()
+```
+
+# Page One
+
+## Row
+
+### Primary Value Box
+
+```{r}
+valueBox(1, color = "primary")
+```
+
+### Success Value Box
+
+```{r}
+valueBox(2, color = "success")
+```
+
+### Info Value Box
+
+```{r}
+valueBox(3, color = "info")
+```
+
+### Warning Value Box
+
+```{r}
+valueBox(4, color = "warning")
+```
+
+### Danger Value Box
+
+```{r}
+valueBox(5, color = "danger")
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart C
+
+```{r}
+
+```
+
+### Chart D
+
+```{r}
+
+```
+

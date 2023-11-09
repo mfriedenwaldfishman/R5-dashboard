@@ -1,3 +1,12 @@
+# to do ----
+# calculate length of stay
+# aggregate sitetype
+# calculate booking window
+# calculate daily cost
+# calculate daily cost per visitor
+# calculate distance traveled
+# add customer state
+
 # setup ----
 library(vroom)
 library(here)
