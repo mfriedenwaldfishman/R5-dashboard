@@ -199,7 +199,7 @@ function(geography = "zcta", year, state){
   }
 }
 
-# median income acs processing ----
+# median age acs processing ----
 function(geography = "zcta", year, state){
   df_median_age <- 
     get_acs(geography = "zcta",
