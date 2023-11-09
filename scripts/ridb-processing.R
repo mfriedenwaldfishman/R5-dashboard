@@ -1,9 +1,5 @@
 # to do ----
-# calculate length of stay
 # aggregate sitetype
-# calculate booking window
-# calculate daily cost
-# calculate daily cost per visitor
 # calculate distance traveled
 # add customer state
 
@@ -16,7 +12,6 @@ library(janitor)
 # read in data ----
 # 2018 ridb data
 fp_ridb2018 <- here("data/ridb/raw/reservations2018.csv")
-# add sept_out to rm `_` to match other column names
 raw_ridb2018 <- vroom(fp_ridb2018)
 
 # 2019 ridb data
@@ -33,7 +28,7 @@ raw_ridb2021 <- vroom(fp_ridb2021)
 
 # 2018 clean and subset ridb ----
 usfs_ridb2018 <- raw_ridb2018 %>% 
-  # match colnames
+  # add sept_out to rm `_` to match other column names
   janitor::clean_names(sep_out = "") %>% 
   # cols of interest
   select(
@@ -44,7 +39,7 @@ usfs_ridb2018 <- raw_ridb2018 %>%
     sitetype,
     usetype,
     facilityzip,
-    facilitystate,
+    # facilitystate,
     facilitylongitude,
     facilitylatitude,
     customerzip,
@@ -139,6 +134,11 @@ usfs_ridb2018 <- raw_ridb2018 %>%
       park == "Tunnel Mills Il" ~ "Tunnel Mills Group",
       TRUE ~ park
     ),
+    # calculate new variables
+    lengthofstay = as.numeric(difftime(enddate, startdate), units = "days"),
+    bookingwindow = as.numeric(difftime(startdate, orderdate), units = "days"),
+    dailycost = totalpaid / lengthofstay,
+    dailycostpervisitor = dailycost / numberofpeople,
     # convert sitetype to title case
     sitetype = str_to_title(sitetype)
   )
@@ -157,7 +157,7 @@ usfs_ridb <- raw_ridb2021 %>%
     sitetype,
     usetype,
     facilityzip,
-    facilitystate,
+    # facilitystate,
     facilitylongitude,
     facilitylatitude,
     customerzip,
@@ -229,6 +229,11 @@ usfs_ridb <- raw_ridb2021 %>%
     # convert back to numeric
     facilitylongitude = as.numeric(facilitylongitude),
     facilitylatitude = as.numeric(facilitylatitude),
+    # calculate new variables
+    lengthofstay = as.numeric(difftime(enddate, startdate), units = "days"),
+    bookingwindow = as.numeric(difftime(startdate, orderdate), units = "days"),
+    dailycost = totalpaid / lengthofstay,
+    dailycostpervisitor = dailycost / numberofpeople,
     # convert sitetype to title case
     sitetype = str_to_title(sitetype)#,
     # aggregated sitetype
