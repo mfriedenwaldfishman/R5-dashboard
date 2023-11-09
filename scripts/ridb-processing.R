@@ -210,7 +210,7 @@ usfs_ridb <- raw_ridb2021 %>%
       facilitylatitude == "38.477308" & facilitylongitude == "-120.024175" ~ "Lodgepole Overflow Campground",
       facilitylatitude == "38.4811" & facilitylongitude == "-120.017" ~ "Silvertip Campground",
       facilitylatitude == "38.480752" & facilitylongitude == "-119.988643" ~ "Pine Marten Campground", # 2021 data
-      # facilitylatitude == 38.48075 & facilitylongitude == -119.9886 ~ "Pine Marten Campground",
+      facilitylatitude == "38.4815" & facilitylongitude == "-119.989" ~ "Pine Marten Campground", # 2019 data
       facilitylatitude == "38.4802" & facilitylongitude == "-119.985" ~ "Silver Valley Campground",
       facilitylatitude == "38.477333" & facilitylongitude == "-120.008045" ~ "Lake Alpine West Shore Campground",
       TRUE ~ park
@@ -219,13 +219,4 @@ usfs_ridb <- raw_ridb2021 %>%
     facilitylongitude = as.numeric(facilitylongitude),
     facilitylatitude = as.numeric(facilitylatitude),
   )
-
-
-# test ----
-park2021_test <- usfs_ridb %>% 
-  filter(forestname == "Stanislaus National Forest") %>% 
-  group_by(park,
-           facilitylongitude,
-           facilitylatitude) %>% 
-  summarize(n = n())
 
