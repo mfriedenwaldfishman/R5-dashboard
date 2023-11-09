@@ -5,7 +5,7 @@ library(here)
 library(tidycensus)
 
 # read in/load data ----
-census_api_key("c91cc60e79a66698392887da99c49ef502762ea8", install = TRUE, overwrite = TRUE)
+census_api_key("insert_api_key", install = TRUE, overwrite = TRUE)
 
 # race acs processing ----
 function(geography = "zcta", year, state){
