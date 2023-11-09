@@ -199,6 +199,31 @@ function(geography = "zcta", year, state){
   }
 }
 
+# median income acs processing ----
+function(geography = "zcta", year, state){
+  df_median_age <- 
+    get_acs(geography = "zcta",
+            year = 2018,
+            state = "California",
+            survey = "acs5",
+            variables = c(
+              median_income = "B01002_001" # Estimate!!Median age
+            )) %>% 
+    clean_names() %>% 
+    rename(median_age = estimate) %>% 
+    mutate(zip_code = str_sub(name, start = -5, end = -1)) %>% 
+    select(median_age, zip_code)
+  
+  # create df
+  if (is.null(state)) {
+    assign(x = paste0("data_acs_", year, "_median_age"), 
+           data.frame(df), envir = .GlobalEnv)
+  } else {
+    assign(x = paste0("data_acs_", year, "_median_age_", state), 
+           data.frame(df), envir = .GlobalEnv)
+  }
+}
+
 # combine data into one data frame ----
 # use join() or rbind()
 
