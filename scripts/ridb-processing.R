@@ -198,18 +198,28 @@ usfs_ridb <- raw_ridb2021 %>%
       # Stanislaus NF
       park == "Big Meadow Stanislaus Natl Fs" ~ "Big Meadow",
       park == "Lake Alpine - Lodgepole Group" ~ "Lodgepole Group",
-      # fill in missing data based on lat/long
-      facilitylatitude == 38.48110 & facilitylongitude == -120.0170 ~ "Silvertip Campground",
-      facilitylatitude == 38.48150 & facilitylongitude == -119.9890 ~ "Pine Marten Campground",
-      facilitylatitude == 38.48075 & facilitylongitude == -119.9886 ~ "Pine Marten Campground",
-      facilitylatitude == 38.48020 & facilitylongitude == -119.9850 ~ "Silver Valley Campground",
-      facilitylatitude == 38.47733 & facilitylongitude == -120.0080 ~ "Lake Alpine West Shore Campground",
-      facilitylatitude == 38.47731 & facilitylongitude == -120.0242 ~ "Lodgepole Overflow Campground",
       # Tahoe NF
       park == "Tunnel Mills Ii" ~ "Tunnel Mills Group",
       TRUE ~ park
-    )
+    ),
+    # convert to character to reveal full coordinate
+    facilitylongitude = as.character(facilitylongitude),
+    facilitylatitude = as.character(facilitylatitude),
+    park = case_when(
+      # fill in missing data based on lat/long
+      facilitylatitude == "38.477308" & facilitylongitude == "-120.024175" ~ "Lodgepole Overflow Campground",
+      facilitylatitude == "38.4811" & facilitylongitude == "-120.017" ~ "Silvertip Campground",
+      facilitylatitude == "38.480752" & facilitylongitude == "-119.988643" ~ "Pine Marten Campground", # 2021 data
+      # facilitylatitude == 38.48075 & facilitylongitude == -119.9886 ~ "Pine Marten Campground",
+      facilitylatitude == "38.4802" & facilitylongitude == "-119.985" ~ "Silver Valley Campground",
+      facilitylatitude == "38.477333" & facilitylongitude == "-120.008045" ~ "Lake Alpine West Shore Campground",
+      TRUE ~ park
+    ),
+    # convert back to numeric
+    facilitylongitude = as.numeric(facilitylongitude),
+    facilitylatitude = as.numeric(facilitylatitude),
   )
+
 
 # test ----
 park2021_test <- usfs_ridb %>% 
@@ -217,11 +227,5 @@ park2021_test <- usfs_ridb %>%
   group_by(park,
            facilitylongitude,
            facilitylatitude) %>% 
-  summarize(n = n()) %>% 
-  mutate(
-    park = case_when(
-      facilitylatitude == 38.47731 & facilitylongitude == -120.0242 ~ "Lodgepole Overflow Campground",
-      TRUE ~ park
-    )
-  )
+  summarize(n = n())
 
