@@ -224,7 +224,7 @@ function(geography = "zcta", year, state){
   }
 }
 
-# computer in household acs processing ----
+# computer in households acs processing ----
 function(geography = "zcta", year, state){
   # read in raw data
   df_computers <- 
