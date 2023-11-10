@@ -1,9 +1,5 @@
 # to do ----
-# calculate length of stay
 # aggregate sitetype
-# calculate booking window
-# calculate daily cost
-# calculate daily cost per visitor
 # calculate distance traveled
 # add customer state
 
@@ -16,7 +12,6 @@ library(janitor)
 # read in data ----
 # 2018 ridb data
 fp_ridb2018 <- here("data/ridb/raw/reservations2018.csv")
-# add sept_out to rm `_` to match other column names
 raw_ridb2018 <- vroom(fp_ridb2018)
 
 # 2019 ridb data
@@ -33,7 +28,7 @@ raw_ridb2021 <- vroom(fp_ridb2021)
 
 # 2018 clean and subset ridb ----
 usfs_ridb2018 <- raw_ridb2018 %>% 
-  # match colnames
+  # add sept_out to rm `_` to match other column names
   janitor::clean_names(sep_out = "") %>% 
   # cols of interest
   select(
@@ -139,13 +134,19 @@ usfs_ridb2018 <- raw_ridb2018 %>%
       park == "Tunnel Mills Il" ~ "Tunnel Mills Group",
       TRUE ~ park
     ),
+    # calculate new variables
+    # NOTEHD: 279 obs of neg length of stay
+    lengthofstay = as.numeric(difftime(enddate, startdate), units = "days"), 
+    bookingwindow = as.numeric(difftime(startdate, orderdate), units = "days"),
+    dailycost = totalpaid / lengthofstay,
+    dailycostpervisitor = dailycost / numberofpeople,
     # convert sitetype to title case
     sitetype = str_to_title(sitetype)
   )
   
   
 # 2019-2021 clean and subset ridb ----
-usfs_ridb <- raw_ridb2021 %>% 
+usfs_ridb <- raw_ridb2020 %>% 
   # match colnames
   janitor::clean_names(sep_out = "") %>% 
   # cols of interest
@@ -229,40 +230,89 @@ usfs_ridb <- raw_ridb2021 %>%
     # convert back to numeric
     facilitylongitude = as.numeric(facilitylongitude),
     facilitylatitude = as.numeric(facilitylatitude),
+    # calculate new variables
+    # NOTEHD: 279 obs of neg length of stay
+    lengthofstay = as.numeric(difftime(enddate, startdate), units = "days"),
+    bookingwindow = as.numeric(difftime(startdate, orderdate), units = "days"),
+    dailycost = totalpaid / lengthofstay,
+    dailycostpervisitor = dailycost / numberofpeople,
     # convert sitetype to title case
-    sitetype = str_to_title(sitetype)#,
-    # aggregated sitetype
-    # siteype = case_when(
-    #   site_type %in% c("walk to",
-    #                    "hike to",
-    #                    "group hike to",
-    #                    "group walk to") ~ "remote",
-    #   site_type %in% c("cabin nonelectric",
-    #                    "cabin electric",
-    #                    "yurt",
-    #                    "shelter nonelectric") ~ "shelter",
-    #   site_type %in% c("boat in",
-    #                    "anchorage") ~ "water",
-    #   site_type %in% c("group equestrian",
-    #                    "equestrian nonelectric") ~ "equestrian",
-    #   site_type %in% c("rv nonelectric",
-    #                    "rv electric",
-    #                    "group rv area nonelectric") ~ "rv only",
-    #   site_type %in% c("group standard nonelectric",
-    #                    "standard nonelectric",
-    #                    "standard electric",
-    #                    "group standard area nonelectric",
-    #                    "group standard electric") ~ "rv or tent",
-    #   site_type %in% c("tent only nonelectric",
-    #                    "group tent only area nonelectric",
-    #                    "tent only electric") ~ "tent only"
+    sitetype = str_to_title(sitetype),
+    # redefine "Management" sitetype for 2019-2021
+    sitetype = case_when(
+      sitetype == "Management" & park == "Agnew Horse Camp" ~ "Equestrian",
+      sitetype == "Management" & park %in% c("Almanor",
+                                             "Boulder Creek",
+                                             "Camp 9",
+                                             "Dogwood",
+                                             "Dorabelle Campground",
+                                             "Fallen Leaf Campground",
+                                             "Forks Campground",
+                                             "French Meadows",
+                                             "Giant Gap",
+                                             "Hume Lake",
+                                             "Laguna",
+                                             "Lakeshore East",
+                                             "Lewis At French Meadows",
+                                             "Lodgepole Group",
+                                             "Mcgill Campground And Group Campground",
+                                             "Merrill Campground",
+                                             "Mill Creek Campground",
+                                             "New Shady Rest Campground",
+                                             "Oh Ridge",
+                                             "Onion Valley",
+                                             "Salmon Creek",
+                                             "Sandy Flat",
+                                             "Sardine Lake",
+                                             "Schoolhouse Campground",
+                                             "Serrano",
+                                             "Silver Valley Campground",
+                                             "Silvertip Campground",
+                                             "Summerdale Campground",
+                                             "Sycamore Grove",
+                                             "Tillie Creek",
+                                             "Whitney Portal") ~ "RV or Tent Only",
+      sitetype == "Management" & park %in% c("Aspen Grove Campground",
+                                             "Faucherie",
+                                             "Mono Creek") ~ "Tent Only",
+      sitetype == "Management" & park == "Grouse Valley" ~ "Shelter",
+      TRUE ~ sitetype
+    )
+    # aggregate sitetype
+    # sitetype = case_when(
+    #   # day use; NOTEHD: could probably simplify these conditions
+    #   sitetype %in% c("Entry Point", "Trailhead") & lengthofstay == 0 ~ "Day Use",
+    #   sitetype =="Group Picnic Area" & usetype == "Day" & lengthofstay == 0 ~ "Day Use",
+    #   sitetype == "Management" & usetype == "Day" & lengthofstay == 0 ~ "Day Use",
+    #   sitetype == "Management" & lengthofstay == 0 ~ "Day Use",
+    #   # remote
+    #   sitetype %in% c("Group Walk To", "Walk To", "Destination Zone") |
+    #     sitetype == "Trailhead" & lengthofstay > 0
+    #   ~ "Remote", 
+    #   TRUE ~ sitetype
     # )
   )
 
 
 # test sitetype
 
+site_management <- usfs_ridb %>% 
+  filter(park == "Agnew Horse Camp") %>% 
+  group_by(sitetype) %>% 
+  summarize(n = n())
+
 site_test <- usfs_ridb %>% 
-  filter(sitetype == "Management") %>% 
+  filter(sitetype == "Remote") %>% 
   group_by(forestname, park, usetype) %>% 
   summarize(n = n())
+
+site_park_test <- usfs_ridb %>% 
+  filter(park == "Onion Valley") %>% 
+  group_by(lengthofstay) %>% 
+  summarize(n = n())
+
+lengthofstay_test <- usfs_ridb %>%
+  filter(lengthofstay < 0)
+  # group_by(lengthofstay, park) %>%
+  # summarize(n = n())
+  # 
