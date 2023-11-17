@@ -13,7 +13,6 @@ function(geography = "zcta", year, state){
   df_race <- 
     get_acs(geography = "zcta",
             year = 2018,
-            state = "California",
             survey = "acs5",
             summary_var = "B03002_001", #Estimate!!Total: 
             variables = c(
@@ -64,7 +63,6 @@ function(geography = "zcta", year, state){
   df_edu_2018 <- 
     get_acs(geography = "zcta",
             year = 2018,
-            state = "California",
             survey = "acs5",
             summary_var = "B15003_001", # Estimate!!Total:
             variables = c(
@@ -135,7 +133,6 @@ function(geography = "zcta", state){
   df_lang <- 
     get_acs(geography = "zcta",
             year = 2018, # closest year to 2018 that doesn't pull all NA values
-            state = "California",
             survey = "acs5",
             summary_var = "B16001_001", # Estimate!!Total:
             variables = c(
@@ -179,7 +176,6 @@ function(geography = "zcta", year, state){
   df_median_income <- 
     get_acs(geography = "zcta",
             year = 2018,
-            state = "California",
             survey = "acs5",
             variables = c(
               median_income = "B19013_001" # Estimate!!Median household income in the past 12 months (in 2019 inflation-adjusted dollars)
@@ -204,7 +200,6 @@ function(geography = "zcta", year, state){
   df_median_age <- 
     get_acs(geography = "zcta",
             year = 2018,
-            state = "California",
             survey = "acs5",
             variables = c(
               median_income = "B01002_001" # Estimate!!Median age
@@ -230,7 +225,6 @@ function(geography = "zcta", year, state){
   df_computers <- 
     get_acs(geography = "zcta",
             year = 2018,
-            state = "California",
             survey = "acs5",
             summary_var = "B28003_001", #Estimate!!Total: 
             variables = c(
